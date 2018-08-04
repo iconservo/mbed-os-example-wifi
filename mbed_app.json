@@ -1,8 +1,8 @@
 {
     "config": {
         "wifi-shield": {
-            "help": "Options are internal, WIFI_ESP8266, WIFI_ISM43362, WIFI_IDW0XX1",
-            "value": "internal"
+            "help": "Options are internal, WIFI_ESP8266, WIFI_ISM43362, WIFI_IDW0XX1, WIFI_WINC1500",
+            "value": "WIFI_WINC1500"
         },
         "wifi-ssid": {
             "help": "WiFi SSID",
