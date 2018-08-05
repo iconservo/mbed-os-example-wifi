@@ -1,0 +1,32 @@
+language: cpp
+
+_sources: &repos
+  - ubuntu-toolchain-r-test
+  - llvm-toolchain-trusty
+  - llvm-toolchain-trusty-4.0
+  - llvm-toolchain-trusty-5.0
+
+_addons: &addon_conf
+  apt:
+    packages: ['gcc-multilib']
+    sources: *repos
+
+env: TC_HOME=$HOME/tc
+
+matrix:
+  include:
+   - os: linux
+     env: ARMGCC_VERSION="7.3.1" BOARD=DISCO_L475VG_IOT01A
+
+before_install:
+  - chmod +x ci/toolchain_install.sh && . /toolchain.install.sh && linux_default_download
+  - pip install --user mbed-cli
+  - mbed deploy
+  - mbed new .
+
+script:
+  - mbed compile -t GCC_ARM -m ${BOARD}
+
+cache:
+  directories:
+    - ${TC_HOME}
