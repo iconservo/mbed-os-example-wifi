@@ -12,6 +12,8 @@ matrix:
      env: ARMGCC_VERSION="6.3.1" BOARD=NUCLEO_L476RG
 
 before_install:
+  - pip install --user mbed-cli
+  - mbed deploy
   - mbed-ci/travis_beforeinstall.sh
 
 script:
