@@ -1,20 +1,8 @@
 language: cpp
 
-_sources: &repos
-  - ubuntu-toolchain-r-test
-  - llvm-toolchain-trusty
-  - llvm-toolchain-trusty-4.0
-  - llvm-toolchain-trusty-5.0
-
-_addons: &addon_conf
-  apt:
-    packages: ['gcc-multilib']
-    sources: *repos
-
 env:
   global:
     - TC_HOME=$HOME/tc
-    - GCC_ARM_PATH=$HOME/bin
 
 matrix:
   include:
@@ -24,13 +12,7 @@ matrix:
      env: ARMGCC_VERSION="6.3.1" BOARD=NUCLEO_L476RG
 
 before_install:
-  - pip install --user mbed-cli
-  - mbed deploy
-  - pip install --user -r mbed-os/requirements.txt
-  - mbed new .
-  - chmod +x mbed-ci/toolchain_install.sh && . mbed-ci/toolchain_install.sh && linux_default_download
-  - mbed config GCC_ARM_PATH $HOME/bin
-  - $HOME/bin/arm-none-eabi-gcc --version
+  - mbed-ci/travis_beforeinstall.sh
 
 script:
   - mbed compile -t GCC_ARM -m ${BOARD}
