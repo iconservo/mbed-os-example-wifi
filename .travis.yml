@@ -1,0 +1,26 @@
+language: cpp
+
+env:
+  global:
+    - TC_HOME=$HOME/tc
+
+matrix:
+  include:
+   - os: linux
+     env: ARMGCC_VERSION="6.3.1" BOARD=DISCO_L475VG_IOT01A
+   - os: linux
+     env: ARMGCC_VERSION="6.3.1" BOARD=NUCLEO_L476RG
+
+before_install:
+  - pip install --user mbed-cli
+  - mbed deploy
+  - mbed-ci/travis_beforeinstall.sh
+
+script:
+  - mbed compile -t GCC_ARM -m ${BOARD}
+
+cache:
+  directories:
+    - ${TC_HOME}
+    - ${HOME}/.mbed/mbed-cache
+    - ${HOME}/.cache/pip

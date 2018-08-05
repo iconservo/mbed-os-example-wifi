@@ -21,6 +21,7 @@
 #define WIFI_ESP8266    2
 #define WIFI_IDW0XX1    3
 #define WIFI_ISM43362   4
+#define WIFI_WINC1500   5
 
 WiFiInterface *wifi;
 
@@ -49,6 +50,15 @@ WiFiInterface *WiFiInterface::get_default_instance() {
 WiFiInterface *WiFiInterface::get_default_instance() {
     static SpwfSAInterface spwf(MBED_CONF_APP_WIFI_TX, MBED_CONF_APP_WIFI_RX);
     return &spwf;
+}
+
+#elif MBED_CONF_APP_WIFI_SHIELD == WIFI_WINC1500
+
+#include "WINC1500Interface.h"
+
+WiFiInterface *WiFiInterface::get_default_instance() {
+    static WINC1500Interface winc;
+    return &winc;
 }
 
 #endif
