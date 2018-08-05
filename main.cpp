@@ -58,7 +58,7 @@ WiFiInterface *WiFiInterface::get_default_instance() {
 
 WiFiInterface *WiFiInterface::get_default_instance() {
     static WINC1500Interface winc;
-    returmn &winc;
+    return &winc;
 }
 
 #endif
