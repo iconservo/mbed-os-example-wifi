@@ -14,6 +14,7 @@ _addons: &addon_conf
 env:
   global:
     - TC_HOME=$HOME/tc
+    - GCC_ARM_PATH=$HOME/bin
 
 matrix:
   include:
@@ -27,6 +28,8 @@ before_install:
   - mbed new .
   - ls -la . && ls -la mbed-ci/
   - chmod +x mbed-ci/toolchain_install.sh && . mbed-ci/toolchain_install.sh && linux_default_download
+  - mbed config GCC_ARM_PATH $HOME/bin
+  - $HOME/bin/arm-none-eabi-gcc --version
 
 script:
   - mbed compile -t GCC_ARM -m ${BOARD}
