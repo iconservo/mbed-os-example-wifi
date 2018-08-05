@@ -26,16 +26,8 @@ before_install:
   - mbed deploy
   - pip install --user -r mbed-os/requirements.txt
   - mbed new .
-  - mkdir -p $HOME/bin
-  - ls -laShR $HOME/bin
   - chmod +x mbed-ci/toolchain_install.sh && . mbed-ci/toolchain_install.sh && linux_default_download
   - mbed config GCC_ARM_PATH $HOME/bin
-  - ls -laSh /home/travis/tc/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-gcc
-  - file /home/travis/tc/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-gcc
-  - ln -vs /home/travis/tc/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-gcc /home/travis/bin/arm-none-eabi-gcc
-  - ls -laSh $HOME/bin
-  - ls -laShR $HOME/bin
-  - ls -laShR $TC_HOME
   - $HOME/bin/arm-none-eabi-gcc --version
 
 script:
