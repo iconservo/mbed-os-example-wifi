@@ -29,7 +29,8 @@ before_install:
   - chmod +x mbed-ci/toolchain_install.sh && . mbed-ci/toolchain_install.sh && linux_default_download
   - mbed config GCC_ARM_PATH $HOME/bin
   - ls -laSh $HOME/bin
-  - file $HOME/bin/arm-none-eabi-gcc
+  - ls -laShR $HOME/bin
+  - ls -laShR $TC_HOME
   - $HOME/bin/arm-none-eabi-gcc --version
 
 script:
