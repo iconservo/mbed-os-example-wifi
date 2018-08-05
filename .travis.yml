@@ -19,10 +19,10 @@ matrix:
      env: ARMGCC_VERSION="7.3.1" BOARD=DISCO_L475VG_IOT01A
 
 before_install:
-  - chmod +x ci/toolchain_install.sh && . /toolchain.install.sh && linux_default_download
   - pip install --user mbed-cli
   - mbed deploy
   - mbed new .
+  - chmod +x mbed-ci/toolchain_install.sh && . mbed-ci/toolchain.install.sh && linux_default_download
 
 script:
   - mbed compile -t GCC_ARM -m ${BOARD}
