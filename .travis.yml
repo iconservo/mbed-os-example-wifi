@@ -22,7 +22,8 @@ before_install:
   - pip install --user mbed-cli
   - mbed deploy
   - mbed new .
-  - chmod +x mbed-ci/toolchain_install.sh && . mbed-ci/toolchain.install.sh && linux_default_download
+  - ls -la . && ls -la mbed-ci/
+  - chmod +x mbed-ci/toolchain_install.sh && . mbed-ci/toolchain_install.sh && linux_default_download
 
 script:
   - mbed compile -t GCC_ARM -m ${BOARD}
