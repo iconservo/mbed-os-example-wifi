@@ -11,7 +11,9 @@ _addons: &addon_conf
     packages: ['gcc-multilib']
     sources: *repos
 
-env: TC_HOME=$HOME/tc
+env:
+  global:
+    - TC_HOME=$HOME/tc
 
 matrix:
   include:
