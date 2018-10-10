@@ -21,9 +21,14 @@
             "value": "D0"
         }
     },
+	 "macros": [
+	    "MBED_HEAP_STATS_ENABLED=1"
+	],
     "target_overrides": {
         "*": {
-            "platform.stdio-convert-newlines": true
+            "platform.stdio-convert-newlines": true,
+	   "platform.stdio-baud-rate": 115200,
+	   "platform.default-serial-baud-rate": 115200
         },
         "DISCO_F413ZH": {
             "wifi-shield": "WIFI_ISM43362"

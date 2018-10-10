@@ -1,0 +1,4 @@
+r
+loadfile BUILD/NRF52_DK/GCC_ARM/mbed-os-example-wifi.hex
+go
+exit
