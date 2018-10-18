@@ -1,5 +1,7 @@
 # mbed-os-example-wifi #
 
+[![Build Status](https://travis-ci.com/iconservo/mbed-os-example-wifi.svg?branch=develop)](https://travis-ci.com/iconservo/mbed-os-example-wifi)
+
 Wi-Fi example for Mbed OS
 
 ## Getting started with the Wi-Fi API ##
