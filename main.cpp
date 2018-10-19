@@ -43,7 +43,7 @@ extern "C"
 
 WiFiInterface *wifi;
 
-static DigitalOut lp_en(LOW_POWER_ENABLE);
+//static DigitalOut lp_en(LOW_POWER_ENABLE);
 
 
 /** Wi-Fi Settings */
@@ -194,7 +194,7 @@ int https_demo(NetworkInterface *net)
     printf("Current heap: %lu\r\n", heap_stats.current_size);
     printf("Max heap size: %lu\r\n", heap_stats.max_size);
 
-    // Do a GET request to https://home.t.myblossom.com/api/heartbeat/
+    // Do a GET re_Static_assertquest to https://home.t.myblossom.com/api/heartbeat/
     {
         HttpRequest* get_req = new HttpRequest(socket, HTTP_GET, "https://home.t.myblossom.com/api/heartbeat/");
 

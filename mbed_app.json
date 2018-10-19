@@ -43,6 +43,17 @@
         "NUCLEO_F401RE": {
             "wifi-tx": "D8",
             "wifi-rx": "D2"
+        },
+        "NRF52_DK": {
+            "winc1500.wifi-miso": "p28",
+            "winc1500.wifi-mosi": "p25",
+            "winc1500.wifi-sclk": "p29",
+            "winc1500.wifi-nss": "p12",
+            "winc1500.wifi-reset": "p14",
+            "winc1500.wifi-wakeup": "p16",
+            "winc1500.wifi-irq": "p15",
+            "winc1500.wifi-chip-enable": "p11",
+            "winc1500.enable_debug": true
         }
     }
 }
