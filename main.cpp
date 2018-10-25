@@ -17,6 +17,24 @@
 #include "mbed.h"
 #include "TCPSocket.h"
 
+#include "wifi-winc1500/WINC1500TLSSocket.h"
+
+
+#include "wifi-winc1500/mbed_bsp/bsp_mbed.h"
+
+#include "mbed-http/source/http_request.h"
+
+
+extern "C"
+{
+#include "wifi-winc1500/winc1500/host_drv/driver/include/m2m_wifi.h"
+#include "wifi-winc1500/winc1500/host_drv/driver/source/m2m_hif.h"
+#include "wifi-winc1500/winc1500/host_drv/driver/include/m2m_types.h"
+
+
+}
+
+
 #define internal        1
 #define WIFI_ESP8266    2
 #define WIFI_IDW0XX1    3
@@ -24,6 +42,18 @@
 #define WIFI_WINC1500   5
 
 WiFiInterface *wifi;
+
+//static DigitalOut lp_en(LOW_POWER_ENABLE);
+
+
+/** Wi-Fi Settings */
+#define MAIN_WLAN_SSID        "CiklumBiowaveLabs" /* < Destination SSID */
+#define MAIN_WLAN_AUTH        M2M_WIFI_SEC_WPA_PSK /* < Security manner */
+#define MAIN_WLAN_PSK         "Biowave_is_the_best" /* < Password for Destination SSID */
+
+#define MAIN_HTTP_FILE_URL   			"https://home.t.myblossom.com/api/heartbeat/"//"https://httpbin.org/get"//"https://www.google.com"//"httpbin.org/get"//"https://www.myblossom.com/"//"http://home.s.myblossom.com/"
+#define USE_TLS							0//1
+#define PORT							80//443
 
 #if MBED_CONF_APP_WIFI_SHIELD == WIFI_ESP8266
 
@@ -57,12 +87,17 @@ WiFiInterface *WiFiInterface::get_default_instance() {
 #include "WINC1500Interface.h"
 
 WiFiInterface *WiFiInterface::get_default_instance() {
-    static WINC1500Interface winc;
-    return &winc;
+
+	return &WINC1500Interface::getInstance();
 }
 
 #endif
 
+
+FileHandle* mbed::mbed_override_console(int fd) {
+    static UARTSerial s(USBTX, USBRX, 115200);
+    return &s;
+}
 
 const char *sec2str(nsapi_security_t sec)
 {
@@ -86,6 +121,8 @@ const char *sec2str(nsapi_security_t sec)
 int scan_demo(WiFiInterface *wifi)
 {
     WiFiAccessPoint *ap;
+
+    printf("Scan DEMO\n");
 
     printf("Scan:\n");
 
@@ -118,55 +155,85 @@ int scan_demo(WiFiInterface *wifi)
     return count;
 }
 
-void http_demo(NetworkInterface *net)
-{
-    TCPSocket socket;
-    nsapi_error_t response;
+void dump_response(HttpResponse* res) {
+    printf("Status: %d - %s\n", res->get_status_code(), res->get_status_message().c_str());
 
-    printf("Sending HTTP request to www.arm.com...\n");
-
-    // Open a socket on the network interface, and create a TCP connection to www.arm.com
-    response = socket.open(net);
-    if(0 != response) {
-        printf("socket.open() failed: %d\n", response);
-        return;
+    printf("Headers:\n");
+    for (size_t ix = 0; ix < res->get_headers_length(); ix++) {
+        printf("\t%s: %s\n", res->get_headers_fields()[ix]->c_str(), res->get_headers_values()[ix]->c_str());
     }
-
-    response = socket.connect("api.ipify.org", 80);
-    if(0 != response) {
-        printf("Error connecting: %d\n", response);
-        socket.close();
-        return;
-    }
-
-    // Send a simple http request
-    char sbuffer[] = "GET / HTTP/1.1\r\nHost: api.ipify.org\r\nConnection: close\r\n\r\n";
-    nsapi_size_t size = strlen(sbuffer);
-
-    // Loop until whole request send
-    while(size) {
-        response = socket.send(sbuffer+response, size);
-        if (response < 0) {
-            printf("Error sending data: %d\n", response);
-            socket.close();
-            return;
-        }
-        size -= response;
-        printf("sent %d [%.*s]\n", response, strstr(sbuffer, "\r\n")-sbuffer, sbuffer);
-    }
-
-    // Receieve a simple http response and print out the response line
-    char rbuffer[64];
-    response = socket.recv(rbuffer, sizeof rbuffer);
-    if (response < 0) {
-        printf("Error receiving data: %d\n", response);
-    } else {
-        printf("recv %d [%.*s]\n", response, strstr(rbuffer, "\r\n")-rbuffer, rbuffer);
-    }
-
-    // Close the socket to return its memory and bring down the network interface
-    socket.close();
+    printf("\nBody (%d bytes):\n\n%s\n", res->get_body_length(), res->get_body_as_string().c_str());
 }
+
+
+int https_demo(NetworkInterface *net)
+{
+    // Create a TCP socket
+    printf("\n----- Setting up TCP connection -----\n");
+
+    //  TCPSocket* socket = new TCPSocket();
+    WINC1500TLSSocket* socket = new WINC1500TLSSocket();
+
+
+    nsapi_error_t open_result = socket->open((WINC1500Interface *)wifi);
+    if (open_result != 0) {
+        printf("Opening TCPSocket failed... %d\n", open_result);
+        return 1;
+    }
+
+    nsapi_error_t connect_result = socket->connect("home.t.myblossom.com", 443);
+    if (connect_result != 0) {
+        printf("Connecting over TCPSocket failed... %d\n", connect_result);
+        return 1;
+    }
+
+    printf("Connected over TCP to home.t.myblossom.com/api/heartbeat/:443\n");
+
+    mbed_stats_heap_t heap_stats;
+    mbed_stats_heap_get(&heap_stats);
+    printf("Current heap: %lu\r\n", heap_stats.current_size);
+    printf("Max heap size: %lu\r\n", heap_stats.max_size);
+
+    // Do a GET re_Static_assertquest to https://home.t.myblossom.com/api/heartbeat/
+    {
+        HttpRequest* get_req = new HttpRequest(socket, HTTP_GET, "https://home.t.myblossom.com/api/heartbeat/");
+
+        // By default the body is automatically parsed and stored in a string, this is memory heavy.
+        // To receive chunked response, pass in a callback as third parameter to 'send'.
+        HttpResponse* get_res = get_req->send();
+        if (!get_res) {
+            printf("HttpRequest failed (error code %d)\n", get_req->get_error());
+            return 1;
+        }
+
+        printf("\n----- HTTP GET response -----\n");
+        dump_response(get_res);
+
+        delete get_req;
+    }
+
+    // POST request to httpbin.org
+    {
+        HttpRequest* post_req = new HttpRequest(socket, HTTP_POST, "https://home.t.myblossom.com/api/heartbeat/");
+        post_req->set_header("Content-Type", "application/json");
+
+        const char body[] = "{\"hello\":\"world\"}";
+
+        HttpResponse* post_res = post_req->send(body, strlen(body));
+        if (!post_res) {
+            printf("HttpRequest failed (error code %d)\n", post_req->get_error());
+            return 1;
+        }
+
+        printf("\n----- HTTP POST response -----\n");
+        dump_response(post_res);
+
+        delete post_req;
+    }
+
+    delete socket;
+}
+
 
 int main()
 {
@@ -190,27 +257,28 @@ int main()
         return -1;
     }
 
-    printf("\nConnecting to %s...\n", MBED_CONF_APP_WIFI_SSID);
-    int ret = wifi->connect(MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2);
+    printf("\nConnecting to %s...\n", MAIN_WLAN_SSID);
+
+    sint8 ret = wifi->connect(MAIN_WLAN_SSID, MAIN_WLAN_PSK, NSAPI_SECURITY_WPA_WPA2, M2M_WIFI_CH_ALL);
+
     if (ret != 0) {
         printf("\nConnection error: %d\n", ret);
         return -1;
     }
+    else
+    {
+        printf("Success\n\n");
 
-    printf("Success\n\n");
-    printf("MAC: %s\n", wifi->get_mac_address());
-    printf("IP: %s\n", wifi->get_ip_address());
-    printf("Netmask: %s\n", wifi->get_netmask());
-    printf("Gateway: %s\n", wifi->get_gateway());
-    printf("RSSI: %d\n\n", wifi->get_rssi());
+    }
 
-    http_demo(wifi);
+    printf("HTTPS demo with Blossom server\n\n");
+
+    https_demo(wifi);
 
     wifi->disconnect();
 
-#if MBED_CONF_APP_WIFI_SHIELD != internal
-    delete wifi;
-#endif
-
     printf("\nDone\n");
+
+    wait(osWaitForever);
+
 }

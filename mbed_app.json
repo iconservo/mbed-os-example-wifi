@@ -21,9 +21,14 @@
             "value": "D0"
         }
     },
+	 "macros": [
+	    "MBED_HEAP_STATS_ENABLED=1"
+	],
     "target_overrides": {
         "*": {
-            "platform.stdio-convert-newlines": true
+            "platform.stdio-convert-newlines": true,
+	   "platform.stdio-baud-rate": 115200,
+	   "platform.default-serial-baud-rate": 115200
         },
         "DISCO_F413ZH": {
             "wifi-shield": "WIFI_ISM43362"
@@ -38,6 +43,17 @@
         "NUCLEO_F401RE": {
             "wifi-tx": "D8",
             "wifi-rx": "D2"
+        },
+        "NRF52_DK": {
+            "winc1500.wifi-miso": "p28",
+            "winc1500.wifi-mosi": "p25",
+            "winc1500.wifi-sclk": "p29",
+            "winc1500.wifi-nss": "p12",
+            "winc1500.wifi-reset": "p14",
+            "winc1500.wifi-wakeup": "p16",
+            "winc1500.wifi-irq": "p15",
+            "winc1500.wifi-chip-enable": "p11",
+            "winc1500.enable_debug": true
         }
     }
 }
