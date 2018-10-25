@@ -1,6 +1,8 @@
 # mbed-os-example-wifi #
 
-[![Build Status](https://travis-ci.com/iconservo/mbed-os-example-wifi.svg?branch=develop)](https://travis-ci.com/iconservo/mbed-os-example-wifi)
+Master: [![Build Status](https://travis-ci.com/iconservo/mbed-os-example-wifi.svg?branch=master)](https://travis-ci.com/iconservo/mbed-os-example-wifi)
+
+Develop: [![Build Status](https://travis-ci.com/iconservo/mbed-os-example-wifi.svg?branch=develop)](https://travis-ci.com/iconservo/mbed-os-example-wifi)
 
 Wi-Fi example for Mbed OS
 
